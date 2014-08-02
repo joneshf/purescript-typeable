@@ -1,0 +1,10 @@
+{
+  "name": "purescript-typeable",
+  "version": "0.0.0",
+  "description": "PureScript implementation of Typeable.",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.8.7",
+    "gulp-purescript": "0.0.9"
+  }
+}
