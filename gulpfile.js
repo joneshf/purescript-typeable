@@ -14,7 +14,9 @@ var paths = {
     docsDest: 'README.md'
 };
 
-var options = {};
+var options = {
+  verboseErrors: false
+};
 
 var compile = function(compiler) {
     var psc = compiler(options);
