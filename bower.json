@@ -23,6 +23,9 @@
     "tests"
   ],
   "dependencies": {
-    "purescript-arrays": "~0.1.8"
+    "purescript-arrays": "~0.4.5",
+    "purescript-functions": "~0.1.0",
+    "purescript-unsafe-coerce": "~0.1.1",
+    "purescript-lists": "~0.7.10"
   }
 }

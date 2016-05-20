@@ -6,10 +6,9 @@ var gulp       = require('gulp')
 
 var paths = {
     src: 'src/**/*.purs',
-    bowerSrc: [
-      'bower_components/purescript-*/src/**/*.purs',
-      'bower_components/purescript-*/src/**/*.purs.hs'
-    ],
+    foreigns: 'src/**/*.js',
+    bowerSrc: 'bower_components/purescript-*/src/**/*.purs',
+    bowerForeigns: 'bower_components/purescript-*/src/**/*.js',
     dest: '',
     docsDest: 'README.md'
 };
@@ -30,17 +29,24 @@ var compile = function(compiler) {
 };
 
 gulp.task('make', function() {
-    return compile(purescript.pscMake);
+    return purescript.psc({
+        src: [paths.src, paths.bowerSrc],
+        ffi: [paths.foreigns, paths.bowerForeigns]
+    });
 });
 
 gulp.task('browser', function() {
     return compile(purescript.psc);
 });
 
-gulp.task('docs', function() {
-    return gulp.src(paths.src)
-      .pipe(purescript.docgen())
-      .pipe(gulp.dest(paths.docsDest));
+gulp.task("docs", ["make"], function () {
+    return purescript.pscDocs({
+        src: [paths.src, paths.bowerSrc],
+        format: "markdown",
+        docgen: {
+            "Data.Typeable": paths.docsDest
+        }
+    });
 });
 
 gulp.task('watch-browser', function() {

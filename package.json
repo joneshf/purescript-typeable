@@ -4,7 +4,7 @@
   "description": "PureScript implementation of Typeable.",
   "license": "MIT",
   "devDependencies": {
-    "gulp": "^3.8.7",
-    "gulp-purescript": "0.0.9"
+    "gulp": "^3.9.1",
+    "gulp-purescript": "0.8.0"
   }
 }

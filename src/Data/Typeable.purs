@@ -1,6 +1,8 @@
 module Data.Typeable where
 
-  import Data.Array () -- Needed for semigroup instance.
+  import Data.List (List(..), snoc)
+  import Data.Foldable (foldMap)
+
   import Data.Function
     ( Fn0()
     , Fn1()
@@ -15,7 +17,18 @@ module Data.Typeable where
     , Fn10()
     )
 
-  data TypeRep = TypeRep TyCon [TypeRep]
+  import Unsafe.Coerce (unsafeCoerce)
+
+  import Prelude
+    ( class Eq, (==)
+    , class Show, show
+    , Unit, unit
+    , class Ord, Ordering(..), compare
+    , (<>), (&&), (<<<)
+    )
+
+
+  data TypeRep = TypeRep TyCon (List TypeRep)
 
   data TyCon = TyCon
     { tyConModule :: String
@@ -23,8 +36,7 @@ module Data.Typeable where
     }
 
   instance eqTypeRep :: Eq TypeRep where
-    (==) (TypeRep con reps) (TypeRep con' reps') = con == con' && reps == reps'
-    (/=) rep                rep'                 = not (rep == rep')
+    eq (TypeRep con reps) (TypeRep con' reps') = con == con' && reps == reps'
 
   instance ordTypeRep :: Ord TypeRep where
     compare (TypeRep con reps) (TypeRep con' reps') =
@@ -33,14 +45,23 @@ module Data.Typeable where
         c  -> c
 
   instance showTypeRep :: Show TypeRep where
-    show (TypeRep con reps) = case reps of
-      [] -> show con
-      [x] | con == arrayTc -> "[" ++ show x ++ "]"
-      [a, b] | con == arrTc -> "(" ++ show a ++ " -> " ++ show b ++ ")"
+    show (TypeRep con reps) =
+      case reps of
+        Nil ->
+          show con
+
+        Cons x Nil | con == arrayTc ->
+          "[" <> show x <> "]"
+
+        Cons a (Cons b Nil) | con == funTc ->
+          "(" <> show a <> " -> " <> show b <> ")"
+
+        _ ->
+          "(" <> show con <> foldMap ((" " <> _) <<< show) reps <> ")"
+
 
   instance eqTyCon :: Eq TyCon where
-    (==) (TyCon {tyConModule = m, tyConName = n}) (TyCon {tyConModule = m', tyConName = n'}) = m == m' && n == n'
-    (/=) con con' = not (con == con')
+    eq (TyCon {tyConModule = m, tyConName = n}) (TyCon {tyConModule = m', tyConName = n'}) = m == m' && n == n'
 
   instance ordTyCon :: Ord TyCon where
     compare (TyCon {tyConModule = m, tyConName = n}) (TyCon {tyConModule = m', tyConName = n'}) =
@@ -131,11 +152,11 @@ module Data.Typeable where
   instance typeableString :: Typeable String where
     typeOf _ = mkTyRep "Prim" "String"
 
-  instance typeable1Array :: Typeable1 [] where
+  instance typeable1Array :: Typeable1 Array where
     typeOf1 _ = mkTyRep "Prim" "Array"
 
   instance typeable2Arr :: Typeable2 (->) where
-    typeOf2 _ = TypeRep arrTc []
+    typeOf2 _ = TypeRep funTc Nil
 
   -- Prelude types.
 
@@ -183,91 +204,86 @@ module Data.Typeable where
   typeRepTyCon :: TypeRep -> TyCon
   typeRepTyCon (TypeRep con _) = con
 
-  typeRepReps :: TypeRep -> [TypeRep]
+  typeRepReps :: TypeRep -> List TypeRep
   typeRepReps (TypeRep _ reps) = reps
 
   mkTyRep :: String -> String -> TypeRep
-  mkTyRep mod name = TypeRep (TyCon {tyConModule: mod, tyConName: name}) []
+  mkTyRep mod name = TypeRep (TyCon {tyConModule: mod, tyConName: name}) Nil
 
-  mkTyConApp :: TyCon -> [TypeRep] -> TypeRep
+  mkTyConApp :: TyCon -> List TypeRep -> TypeRep
   mkTyConApp = TypeRep
 
   mkAppTy :: TypeRep -> TypeRep -> TypeRep
-  mkAppTy (TypeRep con reps) arg = mkTyConApp con (reps ++ [arg])
+  mkAppTy (TypeRep con reps) arg = mkTyConApp con (snoc reps arg)
 
   typeOfDefault :: forall t a. (Typeable1 t, Typeable a) => t a -> TypeRep
   typeOfDefault x = typeOf1 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a. (Typeable1 t, Typeable a) => t a -> a
+      coerce :: t a -> a
       coerce = unsafeCoerce
 
   typeOf1Default :: forall t a b. (Typeable2 t, Typeable a) => t a b -> TypeRep
   typeOf1Default x = typeOf2 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a b. (Typeable2 t, Typeable a) => t a b -> a
+      coerce :: t a b -> a
       coerce = unsafeCoerce
 
   typeOf2Default :: forall t a b c. (Typeable3 t, Typeable a) => t a b c -> TypeRep
   typeOf2Default x = typeOf3 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a b c. (Typeable3 t, Typeable a) => t a b c -> a
+      coerce :: t a b c -> a
       coerce = unsafeCoerce
 
   typeOf3Default :: forall t a b c d. (Typeable4 t, Typeable a) => t a b c d -> TypeRep
   typeOf3Default x = typeOf4 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a b c d. (Typeable4 t, Typeable a) => t a b c d -> a
+      coerce :: t a b c d -> a
       coerce = unsafeCoerce
 
   typeOf4Default :: forall t a b c d e. (Typeable5 t, Typeable a) => t a b c d e -> TypeRep
   typeOf4Default x = typeOf5 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a b c d e. (Typeable5 t, Typeable a) => t a b c d e -> a
+      coerce :: t a b c d e -> a
       coerce = unsafeCoerce
 
   typeOf5Default :: forall t a b c d e f. (Typeable6 t, Typeable a) => t a b c d e f -> TypeRep
   typeOf5Default x = typeOf6 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a b c d e f. (Typeable6 t, Typeable a) => t a b c d e f -> a
+      coerce :: t a b c d e f -> a
       coerce = unsafeCoerce
 
   typeOf6Default :: forall t a b c d e f g. (Typeable7 t, Typeable a) => t a b c d e f g -> TypeRep
   typeOf6Default x = typeOf7 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a b c d e f g. (Typeable7 t, Typeable a) => t a b c d e f g -> a
+      coerce :: t a b c d e f g -> a
       coerce = unsafeCoerce
 
   typeOf7Default :: forall t a b c d e f g h. (Typeable8 t, Typeable a) => t a b c d e f g h -> TypeRep
   typeOf7Default x = typeOf8 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a b c d e f g h. (Typeable8 t, Typeable a) => t a b c d e f g h -> a
+      coerce :: t a b c d e f g h -> a
       coerce = unsafeCoerce
 
   typeOf8Default :: forall t a b c d e f g h i. (Typeable9 t, Typeable a) => t a b c d e f g h i -> TypeRep
   typeOf8Default x = typeOf9 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a b c d e f g h i. (Typeable9 t, Typeable a) => t a b c d e f g h i -> a
+      coerce :: t a b c d e f g h i -> a
       coerce = unsafeCoerce
 
   typeOf9Default :: forall t a b c d e f g h i j. (Typeable10 t, Typeable a) => t a b c d e f g h i j -> TypeRep
   typeOf9Default x = typeOf10 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a b c d e f g h i j. (Typeable10 t, Typeable a) => t a b c d e f g h i j -> a
+      coerce :: t a b c d e f g h i j -> a
       coerce = unsafeCoerce
 
   typeOf10Default :: forall t a b c d e f g h i j k. (Typeable11 t, Typeable a) => t a b c d e f g h i j k -> TypeRep
   typeOf10Default x = typeOf11 x `mkAppTy` typeOf (coerce x)
     where
-      coerce :: forall t a b c d e f g h i j k. (Typeable11 t, Typeable a) => t a b c d e f g h i j k -> a
+      coerce :: t a b c d e f g h i j k -> a
       coerce = unsafeCoerce
 
   arrayTc :: TyCon
   arrayTc = typeRepTyCon (typeOf [unit])
 
-  arrTc :: TyCon
-  arrTc = TyCon {tyConModule: "Prim", tyConName: "Arr"}
-
-  foreign import unsafeCoerce
-    "function unsafeCoerce(x) {\
-    \ return x;\
-    \}" :: forall a b. a -> b
+  funTc :: TyCon
+  funTc = TyCon {tyConModule: "Prim", tyConName: "Function"}
