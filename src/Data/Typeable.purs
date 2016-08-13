@@ -3,18 +3,18 @@ module Data.Typeable where
   import Data.List (List(..), snoc)
   import Data.Foldable (foldMap)
 
-  import Data.Function
-    ( Fn0()
-    , Fn1()
-    , Fn2()
-    , Fn3()
-    , Fn4()
-    , Fn5()
-    , Fn6()
-    , Fn7()
-    , Fn8()
-    , Fn9()
-    , Fn10()
+  import Data.Function.Uncurried
+    ( Fn0
+    , Fn1
+    , Fn2
+    , Fn3
+    , Fn4
+    , Fn5
+    , Fn6
+    , Fn7
+    , Fn8
+    , Fn9
+    , Fn10
     )
 
   import Unsafe.Coerce (unsafeCoerce)
@@ -61,16 +61,16 @@ module Data.Typeable where
 
 
   instance eqTyCon :: Eq TyCon where
-    eq (TyCon {tyConModule = m, tyConName = n}) (TyCon {tyConModule = m', tyConName = n'}) = m == m' && n == n'
+    eq (TyCon {tyConModule: m, tyConName: n}) (TyCon {tyConModule: m', tyConName: n'}) = m == m' && n == n'
 
   instance ordTyCon :: Ord TyCon where
-    compare (TyCon {tyConModule = m, tyConName = n}) (TyCon {tyConModule = m', tyConName = n'}) =
+    compare (TyCon {tyConModule: m, tyConName: n}) (TyCon {tyConModule: m', tyConName: n'}) =
       case compare m m' of
         EQ -> compare n n'
         c  -> c
 
   instance showTyCon :: Show TyCon where
-    show (TyCon {tyConName = name}) = name
+    show (TyCon {tyConName: name}) = name
 
   class Typeable a where
     typeOf :: a -> TypeRep
