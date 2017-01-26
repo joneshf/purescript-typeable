@@ -1,5 +1,6 @@
 module Data.Typeable where
 
+  import Type.Proxy (Proxy(..))
   import Data.List (List(..), snoc)
   import Data.Foldable (foldMap)
 
@@ -16,13 +17,11 @@ module Data.Typeable where
     , Fn10
     )
 
-  import Unsafe.Coerce (unsafeCoerce)
-
   import Prelude
     ( class Eq, (==)
     , class Show, show
-    , Unit, unit
-    , class Ord, Ordering(..), compare
+    , Unit, class Ord
+    , Ordering(..), compare
     , (<>), (&&), (<<<)
     )
 
@@ -72,40 +71,40 @@ module Data.Typeable where
     show (TyCon {tyConName: name}) = name
 
   class Typeable a where
-    typeOf :: a -> TypeRep
+    typeOf :: (Proxy a) -> TypeRep
 
   class Typeable1 t where
-    typeOf1 :: forall a. t a -> TypeRep
+    typeOf1 :: forall a. Proxy (t a) -> TypeRep
 
   class Typeable2 t where
-    typeOf2 :: forall a b. t a b -> TypeRep
+    typeOf2 :: forall a b. Proxy (t a b) -> TypeRep
 
   class Typeable3 t where
-    typeOf3 :: forall a b c. t a b c -> TypeRep
+    typeOf3 :: forall a b c. Proxy (t a b c) -> TypeRep
 
   class Typeable4 t where
-    typeOf4 :: forall a b c d. t a b c d -> TypeRep
+    typeOf4 :: forall a b c d. Proxy (t a b c d) -> TypeRep
 
   class Typeable5 t where
-    typeOf5 :: forall a b c d e. t a b c d e -> TypeRep
+    typeOf5 :: forall a b c d e. Proxy (t a b c d e) -> TypeRep
 
   class Typeable6 t where
-    typeOf6 :: forall a b c d e f. t a b c d e f -> TypeRep
+    typeOf6 :: forall a b c d e f. Proxy (t a b c d e f) -> TypeRep
 
   class Typeable7 t where
-    typeOf7 :: forall a b c d e f g. t a b c d e f g -> TypeRep
+    typeOf7 :: forall a b c d e f g. Proxy (t a b c d e f g) -> TypeRep
 
   class Typeable8 t where
-    typeOf8 :: forall a b c d e f g h. t a b c d e f g h -> TypeRep
+    typeOf8 :: forall a b c d e f g h. Proxy (t a b c d e f g h) -> TypeRep
 
   class Typeable9 t where
-    typeOf9 :: forall a b c d e f g h i. t a b c d e f g h i -> TypeRep
+    typeOf9 :: forall a b c d e f g h i. Proxy (t a b c d e f g h i) -> TypeRep
 
   class Typeable10 t where
-    typeOf10 :: forall a b c d e f g h i j. t a b c d e f g h i j -> TypeRep
+    typeOf10 :: forall a b c d e f g h i j. Proxy (t a b c d e f g h i j) -> TypeRep
 
   class Typeable11 t where
-    typeOf11 :: forall a b c d e f g h i j k. t a b c d e f g h i j k -> TypeRep
+    typeOf11 :: forall a b c d e f g h i j k. Proxy (t a b c d e f g h i j k) -> TypeRep
 
   instance typeableFromTypeable1 :: (Typeable1 t, Typeable a) => Typeable (t a) where
     typeOf = typeOfDefault
@@ -215,74 +214,41 @@ module Data.Typeable where
   mkAppTy :: TypeRep -> TypeRep -> TypeRep
   mkAppTy (TypeRep con reps) arg = mkTyConApp con (snoc reps arg)
 
-  typeOfDefault :: forall t a. (Typeable1 t, Typeable a) => t a -> TypeRep
-  typeOfDefault x = typeOf1 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a -> a
-      coerce = unsafeCoerce
+  typeOfDefault :: forall t a. (Typeable1 t, Typeable a) => Proxy (t a) -> TypeRep
+  typeOfDefault x = typeOf1 (Proxy :: Proxy (t a)) `mkAppTy` typeOf (Proxy :: Proxy a)
+  --
+  typeOf1Default :: forall t a b. (Typeable2 t, Typeable a) => Proxy (t a b) -> TypeRep
+  typeOf1Default x = typeOf2 (Proxy :: Proxy (t a b)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf1Default :: forall t a b. (Typeable2 t, Typeable a) => t a b -> TypeRep
-  typeOf1Default x = typeOf2 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a b -> a
-      coerce = unsafeCoerce
+  typeOf2Default :: forall t a b c. (Typeable3 t, Typeable a) => Proxy (t a b c) -> TypeRep
+  typeOf2Default x = typeOf3 (Proxy :: Proxy (t a b c)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf2Default :: forall t a b c. (Typeable3 t, Typeable a) => t a b c -> TypeRep
-  typeOf2Default x = typeOf3 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a b c -> a
-      coerce = unsafeCoerce
+  typeOf3Default :: forall t a b c d. (Typeable4 t, Typeable a) => Proxy (t a b c d) -> TypeRep
+  typeOf3Default x = typeOf4 (Proxy :: Proxy (t a b c d)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf3Default :: forall t a b c d. (Typeable4 t, Typeable a) => t a b c d -> TypeRep
-  typeOf3Default x = typeOf4 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a b c d -> a
-      coerce = unsafeCoerce
+  typeOf4Default :: forall t a b c d e. (Typeable5 t, Typeable a) => Proxy (t a b c d e) -> TypeRep
+  typeOf4Default x = typeOf5 (Proxy :: Proxy (t a b c d e)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf4Default :: forall t a b c d e. (Typeable5 t, Typeable a) => t a b c d e -> TypeRep
-  typeOf4Default x = typeOf5 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a b c d e -> a
-      coerce = unsafeCoerce
+  typeOf5Default :: forall t a b c d e f. (Typeable6 t, Typeable a) => Proxy (t a b c d e f) -> TypeRep
+  typeOf5Default x = typeOf6 (Proxy :: Proxy (t a b c d e f)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf5Default :: forall t a b c d e f. (Typeable6 t, Typeable a) => t a b c d e f -> TypeRep
-  typeOf5Default x = typeOf6 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a b c d e f -> a
-      coerce = unsafeCoerce
+  typeOf6Default :: forall t a b c d e f g. (Typeable7 t, Typeable a) => Proxy (t a b c d e f g) -> TypeRep
+  typeOf6Default x = typeOf7 (Proxy :: Proxy (t a b c d e f g)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf6Default :: forall t a b c d e f g. (Typeable7 t, Typeable a) => t a b c d e f g -> TypeRep
-  typeOf6Default x = typeOf7 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a b c d e f g -> a
-      coerce = unsafeCoerce
+  typeOf7Default :: forall t a b c d e f g h. (Typeable8 t, Typeable a) => Proxy (t a b c d e f g h) -> TypeRep
+  typeOf7Default x = typeOf8 (Proxy :: Proxy (t a b c d e f g h)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf7Default :: forall t a b c d e f g h. (Typeable8 t, Typeable a) => t a b c d e f g h -> TypeRep
-  typeOf7Default x = typeOf8 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a b c d e f g h -> a
-      coerce = unsafeCoerce
+  typeOf8Default :: forall t a b c d e f g h i. (Typeable9 t, Typeable a) => Proxy (t a b c d e f g h i) -> TypeRep
+  typeOf8Default x = typeOf9 (Proxy :: Proxy (t a b c d e f g h i)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf8Default :: forall t a b c d e f g h i. (Typeable9 t, Typeable a) => t a b c d e f g h i -> TypeRep
-  typeOf8Default x = typeOf9 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a b c d e f g h i -> a
-      coerce = unsafeCoerce
+  typeOf9Default :: forall t a b c d e f g h i j. (Typeable10 t, Typeable a) => Proxy (t a b c d e f g h i j) -> TypeRep
+  typeOf9Default x = typeOf10 (Proxy :: Proxy (t a b c d e f g h i j)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf9Default :: forall t a b c d e f g h i j. (Typeable10 t, Typeable a) => t a b c d e f g h i j -> TypeRep
-  typeOf9Default x = typeOf10 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a b c d e f g h i j -> a
-      coerce = unsafeCoerce
-
-  typeOf10Default :: forall t a b c d e f g h i j k. (Typeable11 t, Typeable a) => t a b c d e f g h i j k -> TypeRep
-  typeOf10Default x = typeOf11 x `mkAppTy` typeOf (coerce x)
-    where
-      coerce :: t a b c d e f g h i j k -> a
-      coerce = unsafeCoerce
+  typeOf10Default :: forall t a b c d e f g h i j k. (Typeable11 t, Typeable a) => Proxy (t a b c d e f g h i j k) -> TypeRep
+  typeOf10Default x = typeOf11 (Proxy :: Proxy (t a b c d e f g h i j k)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
   arrayTc :: TyCon
-  arrayTc = typeRepTyCon (typeOf [unit])
+  arrayTc = typeRepTyCon (typeOf (Proxy :: Proxy (Array Unit)))
 
   funTc :: TyCon
   funTc = TyCon {tyConModule: "Prim", tyConName: "Function"}
