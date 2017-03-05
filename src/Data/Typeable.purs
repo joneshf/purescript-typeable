@@ -146,6 +146,9 @@ module Data.Typeable where
   instance typeableBoolean :: Typeable Boolean where
     typeOf _ = mkTyRep "Prim" "Boolean"
 
+  instance typeableInt :: Typeable Int where
+    typeOf _ = mkTyRep "Prim" "Int"
+
   instance typeableNumber :: Typeable Number where
     typeOf _ = mkTyRep "Prim" "Number"
 
