@@ -5,7 +5,6 @@ module Data.Typeable where
 
   import Data.Function.Uncurried
     ( Fn0
-    , Fn1
     , Fn2
     , Fn3
     , Fn4
@@ -171,7 +170,7 @@ module Data.Typeable where
   instance typeable1Fn0 :: Typeable1 Fn0 where
     typeOf1 _ = mkTyRep "Data.Function" "Fn0"
 
-  instance typeable2Fn1 :: Typeable2 Fn1 where
+  instance typeable2Fn1 :: Typeable2 (->) where
     typeOf2 _ = mkTyRep "Data.Function" "Fn1"
 
   instance typeable3Fn2 :: Typeable3 Fn2 where
