@@ -217,37 +217,37 @@ module Data.Typeable where
   mkAppTy :: TypeRep -> TypeRep -> TypeRep
   mkAppTy (TypeRep con reps) arg = mkTyConApp con (snoc reps arg)
 
-  typeOfDefault :: forall t a. (Typeable1 t, Typeable a) => Proxy (t a) -> TypeRep
+  typeOfDefault :: forall t a. Typeable1 t => Typeable a => Proxy (t a) -> TypeRep
   typeOfDefault x = typeOf1 (Proxy :: Proxy (t a)) `mkAppTy` typeOf (Proxy :: Proxy a)
   --
-  typeOf1Default :: forall t a b. (Typeable2 t, Typeable a) => Proxy (t a b) -> TypeRep
+  typeOf1Default :: forall t a b. Typeable2 t => Typeable a => Proxy (t a b) -> TypeRep
   typeOf1Default x = typeOf2 (Proxy :: Proxy (t a b)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf2Default :: forall t a b c. (Typeable3 t, Typeable a) => Proxy (t a b c) -> TypeRep
+  typeOf2Default :: forall t a b c. Typeable3 t => Typeable a => Proxy (t a b c) -> TypeRep
   typeOf2Default x = typeOf3 (Proxy :: Proxy (t a b c)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf3Default :: forall t a b c d. (Typeable4 t, Typeable a) => Proxy (t a b c d) -> TypeRep
+  typeOf3Default :: forall t a b c d. Typeable4 t => Typeable a => Proxy (t a b c d) -> TypeRep
   typeOf3Default x = typeOf4 (Proxy :: Proxy (t a b c d)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf4Default :: forall t a b c d e. (Typeable5 t, Typeable a) => Proxy (t a b c d e) -> TypeRep
+  typeOf4Default :: forall t a b c d e. Typeable5 t => Typeable a => Proxy (t a b c d e) -> TypeRep
   typeOf4Default x = typeOf5 (Proxy :: Proxy (t a b c d e)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf5Default :: forall t a b c d e f. (Typeable6 t, Typeable a) => Proxy (t a b c d e f) -> TypeRep
+  typeOf5Default :: forall t a b c d e f. Typeable6 t => Typeable a => Proxy (t a b c d e f) -> TypeRep
   typeOf5Default x = typeOf6 (Proxy :: Proxy (t a b c d e f)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf6Default :: forall t a b c d e f g. (Typeable7 t, Typeable a) => Proxy (t a b c d e f g) -> TypeRep
+  typeOf6Default :: forall t a b c d e f g. Typeable7 t => Typeable a => Proxy (t a b c d e f g) -> TypeRep
   typeOf6Default x = typeOf7 (Proxy :: Proxy (t a b c d e f g)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf7Default :: forall t a b c d e f g h. (Typeable8 t, Typeable a) => Proxy (t a b c d e f g h) -> TypeRep
+  typeOf7Default :: forall t a b c d e f g h. Typeable8 t => Typeable a => Proxy (t a b c d e f g h) -> TypeRep
   typeOf7Default x = typeOf8 (Proxy :: Proxy (t a b c d e f g h)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf8Default :: forall t a b c d e f g h i. (Typeable9 t, Typeable a) => Proxy (t a b c d e f g h i) -> TypeRep
+  typeOf8Default :: forall t a b c d e f g h i. Typeable9 t => Typeable a => Proxy (t a b c d e f g h i) -> TypeRep
   typeOf8Default x = typeOf9 (Proxy :: Proxy (t a b c d e f g h i)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf9Default :: forall t a b c d e f g h i j. (Typeable10 t, Typeable a) => Proxy (t a b c d e f g h i j) -> TypeRep
+  typeOf9Default :: forall t a b c d e f g h i j. Typeable10 t => Typeable a => Proxy (t a b c d e f g h i j) -> TypeRep
   typeOf9Default x = typeOf10 (Proxy :: Proxy (t a b c d e f g h i j)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
-  typeOf10Default :: forall t a b c d e f g h i j k. (Typeable11 t, Typeable a) => Proxy (t a b c d e f g h i j k) -> TypeRep
+  typeOf10Default :: forall t a b c d e f g h i j k. Typeable11 t => Typeable a => Proxy (t a b c d e f g h i j k) -> TypeRep
   typeOf10Default x = typeOf11 (Proxy :: Proxy (t a b c d e f g h i j k)) `mkAppTy` typeOf (Proxy :: Proxy a)
 
   arrayTc :: TyCon
